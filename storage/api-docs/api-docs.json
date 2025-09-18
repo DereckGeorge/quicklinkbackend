@@ -1,0 +1,1168 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "QuickLink API",
+        "description": "API for QuickLink healthcare platform",
+        "contact": {
+            "email": "support@quicklink.com"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://127.0.0.1:8001/api",
+            "description": "QuickLink API Server"
+        }
+    ],
+    "paths": {
+        "/api/appointments": {
+            "get": {
+                "tags": [
+                    "Appointments"
+                ],
+                "summary": "Get user's appointments",
+                "description": "Get all appointments for the authenticated user with optional filtering",
+                "operationId": "812c4f15927f3d0e3e959538a6f1104b",
+                "parameters": [
+                    {
+                        "name": "status",
+                        "in": "query",
+                        "description": "Filter by appointment status",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "pending",
+                                "confirmed",
+                                "cancelled",
+                                "completed"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Number of appointments to return",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": "10"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Number of appointments to skip",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": "0"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Appointments retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "apt_123"
+                                                    },
+                                                    "hospitalId": {
+                                                        "type": "string",
+                                                        "example": "h1"
+                                                    },
+                                                    "hospitalName": {
+                                                        "type": "string",
+                                                        "example": "Muhimbili National Hospital"
+                                                    },
+                                                    "doctorId": {
+                                                        "type": "string",
+                                                        "example": "d1"
+                                                    },
+                                                    "doctorName": {
+                                                        "type": "string",
+                                                        "example": "Dr. John Mwakalinga"
+                                                    },
+                                                    "doctorSpecialty": {
+                                                        "type": "string",
+                                                        "example": "General Medicine"
+                                                    },
+                                                    "appointmentDate": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2024-01-20T10:00:00Z"
+                                                    },
+                                                    "timeSlot": {
+                                                        "type": "string",
+                                                        "example": "10:00 AM"
+                                                    },
+                                                    "patientName": {
+                                                        "type": "string",
+                                                        "example": "John Doe"
+                                                    },
+                                                    "patientPhone": {
+                                                        "type": "string",
+                                                        "example": "+255700000000"
+                                                    },
+                                                    "problem": {
+                                                        "type": "string",
+                                                        "example": "Regular checkup"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "confirmed"
+                                                    },
+                                                    "amount": {
+                                                        "type": "number",
+                                                        "example": 30500
+                                                    },
+                                                    "paymentMethod": {
+                                                        "type": "string",
+                                                        "example": "mpesa"
+                                                    },
+                                                    "paymentStatus": {
+                                                        "type": "string",
+                                                        "example": "pending"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2024-01-15T10:30:00Z"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "pagination": {
+                                            "properties": {
+                                                "total": {
+                                                    "type": "integer",
+                                                    "example": 5
+                                                },
+                                                "limit": {
+                                                    "type": "integer",
+                                                    "example": 10
+                                                },
+                                                "offset": {
+                                                    "type": "integer",
+                                                    "example": 0
+                                                },
+                                                "hasMore": {
+                                                    "type": "boolean",
+                                                    "example": false
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Appointments"
+                ],
+                "summary": "Book hospital appointment",
+                "description": "Book an appointment with a doctor at a hospital",
+                "operationId": "2b481df28ec53d2afb2ec7c9a3a77846",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hospitalId",
+                                    "doctorId",
+                                    "appointmentDate",
+                                    "timeSlot",
+                                    "patientName",
+                                    "patientPhone",
+                                    "problem",
+                                    "paymentMethod"
+                                ],
+                                "properties": {
+                                    "hospitalId": {
+                                        "type": "string",
+                                        "example": "h1"
+                                    },
+                                    "doctorId": {
+                                        "type": "string",
+                                        "example": "d1"
+                                    },
+                                    "appointmentDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2024-01-20"
+                                    },
+                                    "timeSlot": {
+                                        "type": "string",
+                                        "example": "10:00 AM"
+                                    },
+                                    "patientName": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "patientPhone": {
+                                        "type": "string",
+                                        "example": "+255700000000"
+                                    },
+                                    "problem": {
+                                        "type": "string",
+                                        "example": "Regular checkup"
+                                    },
+                                    "paymentMethod": {
+                                        "type": "string",
+                                        "example": "mpesa"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Appointment booked successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Appointment booked successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "apt_123"
+                                                },
+                                                "hospitalId": {
+                                                    "type": "string",
+                                                    "example": "h1"
+                                                },
+                                                "hospitalName": {
+                                                    "type": "string",
+                                                    "example": "Muhimbili National Hospital"
+                                                },
+                                                "doctorId": {
+                                                    "type": "string",
+                                                    "example": "d1"
+                                                },
+                                                "doctorName": {
+                                                    "type": "string",
+                                                    "example": "Dr. John Mwakalinga"
+                                                },
+                                                "doctorSpecialty": {
+                                                    "type": "string",
+                                                    "example": "General Medicine"
+                                                },
+                                                "appointmentDate": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2024-01-20T10:00:00Z"
+                                                },
+                                                "timeSlot": {
+                                                    "type": "string",
+                                                    "example": "10:00 AM"
+                                                },
+                                                "patientName": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "patientPhone": {
+                                                    "type": "string",
+                                                    "example": "+255700000000"
+                                                },
+                                                "problem": {
+                                                    "type": "string",
+                                                    "example": "Regular checkup"
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "example": "confirmed"
+                                                },
+                                                "amount": {
+                                                    "type": "number",
+                                                    "example": 30500
+                                                },
+                                                "paymentMethod": {
+                                                    "type": "string",
+                                                    "example": "mpesa"
+                                                },
+                                                "paymentStatus": {
+                                                    "type": "string",
+                                                    "example": "pending"
+                                                },
+                                                "createdAt": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2024-01-15T10:30:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/register": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User registration",
+                "description": "Register a new user account",
+                "operationId": "c7bb21a0d87049e161b8e4c9b0d909f2",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "phone",
+                                    "password",
+                                    "dateOfBirth",
+                                    "gender",
+                                    "address",
+                                    "emergencyContact",
+                                    "emergencyContactPhone",
+                                    "bloodGroup"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "+255700000000"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "securePassword123"
+                                    },
+                                    "dateOfBirth": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "1990-05-15"
+                                    },
+                                    "gender": {
+                                        "type": "string",
+                                        "enum": [
+                                            "male",
+                                            "female",
+                                            "other"
+                                        ],
+                                        "example": "male"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "Mikocheni, Dar es Salaam"
+                                    },
+                                    "emergencyContact": {
+                                        "type": "string",
+                                        "example": "Jane Doe"
+                                    },
+                                    "emergencyContactPhone": {
+                                        "type": "string",
+                                        "example": "+255700000001"
+                                    },
+                                    "medicalHistory": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "diabetes",
+                                            "hypertension"
+                                        ]
+                                    },
+                                    "allergies": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "example": [
+                                            "penicillin"
+                                        ]
+                                    },
+                                    "bloodGroup": {
+                                        "type": "string",
+                                        "example": "O+"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "User registered successfully"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "user_123"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+255700000000"
+                                                },
+                                                "createdAt": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2024-01-15T10:30:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "jwt_token_here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation error"
+                    }
+                }
+            }
+        },
+        "/api/auth/login": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User login",
+                "description": "Authenticate user and return JWT token",
+                "operationId": "dd51a484b7fa0f97c7680fdbde14cf5f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "securePassword123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login successful"
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "user_123"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+255700000000"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "jwt_token_here"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/api/user/profile": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get user profile",
+                "description": "Get authenticated user's profile information",
+                "operationId": "989a403c704cb65bc96a547249313c39",
+                "responses": {
+                    "200": {
+                        "description": "Profile retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "example": "user_123"
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "example": "John Doe"
+                                                },
+                                                "email": {
+                                                    "type": "string",
+                                                    "example": "john@example.com"
+                                                },
+                                                "phone": {
+                                                    "type": "string",
+                                                    "example": "+255700000000"
+                                                },
+                                                "dateOfBirth": {
+                                                    "type": "string",
+                                                    "format": "date",
+                                                    "example": "1990-05-15"
+                                                },
+                                                "gender": {
+                                                    "type": "string",
+                                                    "example": "male"
+                                                },
+                                                "address": {
+                                                    "type": "string",
+                                                    "example": "Mikocheni, Dar es Salaam"
+                                                },
+                                                "emergencyContact": {
+                                                    "type": "string",
+                                                    "example": "Jane Doe"
+                                                },
+                                                "emergencyContactPhone": {
+                                                    "type": "string",
+                                                    "example": "+255700000001"
+                                                },
+                                                "medicalHistory": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "diabetes",
+                                                        "hypertension"
+                                                    ]
+                                                },
+                                                "allergies": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "penicillin"
+                                                    ]
+                                                },
+                                                "bloodGroup": {
+                                                    "type": "string",
+                                                    "example": "O+"
+                                                },
+                                                "profileImageUrl": {
+                                                    "type": "string",
+                                                    "example": "https://api.example.com/images/user_123.jpg"
+                                                },
+                                                "createdAt": {
+                                                    "type": "string",
+                                                    "format": "date-time",
+                                                    "example": "2024-01-15T10:30:00Z"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "User logout",
+                "description": "Logout user and invalidate JWT token",
+                "operationId": "df9bdc6c7a6d9f20b983526b2ec0f698",
+                "responses": {
+                    "200": {
+                        "description": "Logout successful",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logout successful"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/doctors/{doctorId}/availability": {
+            "get": {
+                "tags": [
+                    "Doctors"
+                ],
+                "summary": "Check doctor availability",
+                "description": "Check if a doctor is available on a specific date and get available time slots",
+                "operationId": "fdee8a8e659162e039c8b904907637ce",
+                "parameters": [
+                    {
+                        "name": "doctorId",
+                        "in": "path",
+                        "description": "Doctor ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "d1"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "description": "Date to check availability (YYYY-MM-DD)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "format": "date",
+                            "example": "2024-01-20"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Availability retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "isAvailable": {
+                                                    "type": "boolean",
+                                                    "example": true
+                                                },
+                                                "availableTimeSlots": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string"
+                                                    },
+                                                    "example": [
+                                                        "9:00 AM",
+                                                        "10:00 AM",
+                                                        "11:00 AM",
+                                                        "2:00 PM",
+                                                        "3:00 PM",
+                                                        "4:00 PM"
+                                                    ]
+                                                },
+                                                "alternativeDates": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    },
+                                                    "example": [
+                                                        "2024-01-21",
+                                                        "2024-01-23",
+                                                        "2024-01-27"
+                                                    ]
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Doctor not found"
+                    }
+                }
+            }
+        },
+        "/api/hospitals": {
+            "get": {
+                "tags": [
+                    "Hospitals"
+                ],
+                "summary": "Get nearby hospitals",
+                "description": "Get hospitals with optional filtering by location and specialty",
+                "operationId": "b53f6d753d5e288a546ef8ae1bbe419e",
+                "parameters": [
+                    {
+                        "name": "latitude",
+                        "in": "query",
+                        "description": "User's latitude",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": "-6.8000"
+                        }
+                    },
+                    {
+                        "name": "longitude",
+                        "in": "query",
+                        "description": "User's longitude",
+                        "required": false,
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": "39.2847"
+                        }
+                    },
+                    {
+                        "name": "radius",
+                        "in": "query",
+                        "description": "Search radius in kilometers",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": "50"
+                        }
+                    },
+                    {
+                        "name": "specialty",
+                        "in": "query",
+                        "description": "Filter by specialty",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "example": "cardiology"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hospitals retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "h1"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Muhimbili National Hospital"
+                                                    },
+                                                    "address": {
+                                                        "type": "string",
+                                                        "example": "United Nations Rd, Dar es Salaam"
+                                                    },
+                                                    "latitude": {
+                                                        "type": "number",
+                                                        "example": -6.8
+                                                    },
+                                                    "longitude": {
+                                                        "type": "number",
+                                                        "example": 39.2847
+                                                    },
+                                                    "distance": {
+                                                        "type": "number",
+                                                        "example": 2.5
+                                                    },
+                                                    "specialties": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "example": [
+                                                            "General",
+                                                            "Cardiology",
+                                                            "Ophthalmology",
+                                                            "Emergency"
+                                                        ]
+                                                    },
+                                                    "rating": {
+                                                        "type": "number",
+                                                        "example": 4.5
+                                                    },
+                                                    "phoneNumber": {
+                                                        "type": "string",
+                                                        "example": "+255-22-2151591"
+                                                    },
+                                                    "hasEmergency": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string",
+                                                        "example": "https://api.example.com/images/hospital_h1.jpg"
+                                                    },
+                                                    "doctors": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "properties": {
+                                                                "id": {
+                                                                    "type": "string",
+                                                                    "example": "d1"
+                                                                },
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "example": "Dr. John Mwakalinga"
+                                                                },
+                                                                "specialty": {
+                                                                    "type": "string",
+                                                                    "example": "General Medicine"
+                                                                },
+                                                                "qualification": {
+                                                                    "type": "string",
+                                                                    "example": "MBBS, MD"
+                                                                },
+                                                                "experience": {
+                                                                    "type": "integer",
+                                                                    "example": 10
+                                                                },
+                                                                "rating": {
+                                                                    "type": "number",
+                                                                    "example": 4.7
+                                                                },
+                                                                "imageUrl": {
+                                                                    "type": "string",
+                                                                    "example": "https://api.example.com/images/doctor_d1.jpg"
+                                                                },
+                                                                "availableDays": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "example": [
+                                                                        "Monday",
+                                                                        "Tuesday",
+                                                                        "Wednesday",
+                                                                        "Friday"
+                                                                    ]
+                                                                },
+                                                                "availableTime": {
+                                                                    "type": "string",
+                                                                    "example": "9:00 AM - 5:00 PM"
+                                                                },
+                                                                "consultationFee": {
+                                                                    "type": "number",
+                                                                    "example": 30000
+                                                                },
+                                                                "bio": {
+                                                                    "type": "string",
+                                                                    "example": "Experienced general practitioner with 10 years of practice."
+                                                                },
+                                                                "languages": {
+                                                                    "type": "array",
+                                                                    "items": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "example": [
+                                                                        "English",
+                                                                        "Kiswahili"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "type": "object"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/hospitals/{hospitalId}/doctors": {
+            "get": {
+                "tags": [
+                    "Hospitals"
+                ],
+                "summary": "Get doctors in a specific hospital",
+                "description": "Get all doctors working at a specific hospital",
+                "operationId": "c33606816da92ee7888da4ff246523c2",
+                "parameters": [
+                    {
+                        "name": "hospitalId",
+                        "in": "path",
+                        "description": "Hospital ID",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "example": "h1"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Doctors retrieved successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "d1"
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Dr. John Mwakalinga"
+                                                    },
+                                                    "specialty": {
+                                                        "type": "string",
+                                                        "example": "General Medicine"
+                                                    },
+                                                    "qualification": {
+                                                        "type": "string",
+                                                        "example": "MBBS, MD"
+                                                    },
+                                                    "experience": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "rating": {
+                                                        "type": "number",
+                                                        "example": 4.7
+                                                    },
+                                                    "imageUrl": {
+                                                        "type": "string",
+                                                        "example": "https://api.example.com/images/doctor_d1.jpg"
+                                                    },
+                                                    "availableDays": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "example": [
+                                                            "Monday",
+                                                            "Tuesday",
+                                                            "Wednesday",
+                                                            "Friday"
+                                                        ]
+                                                    },
+                                                    "availableTime": {
+                                                        "type": "string",
+                                                        "example": "9:00 AM - 5:00 PM"
+                                                    },
+                                                    "consultationFee": {
+                                                        "type": "number",
+                                                        "example": 30000
+                                                    },
+                                                    "bio": {
+                                                        "type": "string",
+                                                        "example": "Experienced general practitioner with 10 years of practice."
+                                                    },
+                                                    "languages": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "example": [
+                                                            "English",
+                                                            "Kiswahili"
+                                                        ]
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Hospital not found"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Appointments",
+            "description": "Appointment management endpoints"
+        },
+        {
+            "name": "Authentication",
+            "description": "User authentication endpoints"
+        },
+        {
+            "name": "Doctors",
+            "description": "Doctor availability and management endpoints"
+        },
+        {
+            "name": "Hospitals",
+            "description": "Hospital and doctor management endpoints"
+        }
+    ]
+}
