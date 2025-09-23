@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('doctors', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('hospital_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('specialty');
+            $table->string('qualification')->nullable();
+            $table->integer('experience')->default(0);
+            $table->decimal('rating', 3, 2)->default(0);
+            $table->string('image_url')->nullable();
+            $table->json('available_days')->nullable();
+            $table->string('available_time')->nullable();
+            $table->decimal('consultation_fee', 10, 2)->default(0);
+            $table->text('bio')->nullable();
+            $table->json('languages')->nullable();
             $table->timestamps();
         });
     }
