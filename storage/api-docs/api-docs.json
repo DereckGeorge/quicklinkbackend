@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://127.0.0.1:8001/api",
+            "url": "http://127.0.0.1:8000",
             "description": "QuickLink API Server"
         }
     ],
@@ -822,6 +822,134 @@
                 }
             }
         },
+        "/api/emergency/request": {
+            "post": {
+                "tags": [
+                    "Emergency"
+                ],
+                "summary": "Request emergency services",
+                "description": "Create an emergency request",
+                "operationId": "0c2530a1543379ec230e0ac1d51f7056",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Emergency requested"
+                    }
+                }
+            }
+        },
+        "/api/home-visits": {
+            "get": {
+                "tags": [
+                    "HomeVisits"
+                ],
+                "summary": "Get available home visit providers",
+                "description": "List home visit providers with optional filters",
+                "operationId": "652d19a53ca18a569a5f93e475694676",
+                "parameters": [
+                    {
+                        "name": "providerType",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "example": "doctor"
+                        }
+                    },
+                    {
+                        "name": "specialty",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "example": "General Medicine"
+                        }
+                    },
+                    {
+                        "name": "maxPrice",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "example": 5000
+                        }
+                    },
+                    {
+                        "name": "latitude",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": -6.8
+                        }
+                    },
+                    {
+                        "name": "longitude",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "format": "float",
+                            "example": 39.2847
+                        }
+                    },
+                    {
+                        "name": "maxDistance",
+                        "in": "query",
+                        "schema": {
+                            "type": "number",
+                            "example": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Providers retrieved"
+                    }
+                }
+            }
+        },
+        "/api/home-visits/book": {
+            "post": {
+                "tags": [
+                    "HomeVisits"
+                ],
+                "summary": "Book home visit",
+                "description": "Create a booking for a home visit provider",
+                "operationId": "e72e53d26e4b610617a981d5d8ed86bc",
+                "requestBody": {
+                    "required": true
+                },
+                "responses": {
+                    "201": {
+                        "description": "Booked"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/home-visits/bookings": {
+            "get": {
+                "tags": [
+                    "HomeVisits"
+                ],
+                "summary": "Get user's home visit bookings",
+                "description": "List bookings for the authenticated user",
+                "operationId": "6707ef64904cfcd58c0e0ac79d82a955",
+                "responses": {
+                    "200": {
+                        "description": "Bookings retrieved"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/hospitals": {
             "get": {
                 "tags": [
@@ -1159,6 +1287,14 @@
         {
             "name": "Doctors",
             "description": "Doctor availability and management endpoints"
+        },
+        {
+            "name": "Emergency",
+            "description": "Emergency services endpoints"
+        },
+        {
+            "name": "HomeVisits",
+            "description": "Home visit discovery and booking endpoints"
         },
         {
             "name": "Hospitals",
