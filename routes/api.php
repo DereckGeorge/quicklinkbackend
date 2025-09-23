@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HospitalController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AppointmentController;
+use App\Http\Controllers\Api\HomeVisitController;
+use App\Http\Controllers\Api\EmergencyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,9 +37,19 @@ Route::middleware('auth:api')->group(function () {
     // Appointment routes
     Route::post('appointments', [AppointmentController::class, 'store']);
     Route::get('appointments', [AppointmentController::class, 'index']);
+
+    // Home visits protected routes
+    Route::post('home-visits/book', [HomeVisitController::class, 'book']);
+    Route::get('home-visits/bookings', [HomeVisitController::class, 'myBookings']);
 });
 
 // Public hospital and doctor routes
 Route::get('hospitals', [HospitalController::class, 'index']);
 Route::get('hospitals/{hospitalId}/doctors', [HospitalController::class, 'getDoctors']);
 Route::get('doctors/{doctorId}/availability', [DoctorController::class, 'getAvailability']);
+
+// Home visits public route
+Route::get('home-visits', [HomeVisitController::class, 'index']);
+
+// Emergency route
+Route::post('emergency/request', [EmergencyController::class, 'requestEmergency']);
