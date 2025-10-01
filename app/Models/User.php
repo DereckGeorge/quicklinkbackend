@@ -32,6 +32,8 @@ class User extends Authenticatable implements JWTSubject
         'allergies',
         'blood_group',
         'profile_image_url',
+        'role',
+        'doctor_id',
     ];
 
     /**
@@ -58,6 +60,11 @@ class User extends Authenticatable implements JWTSubject
             'medical_history' => 'array',
             'allergies' => 'array',
         ];
+    }
+
+    public function doctor()
+    {
+        return $this->belongsTo(Doctor::class);
     }
 
     /**

@@ -27,6 +27,28 @@ class UserSeeder extends Seeder
                 'medical_history' => ['diabetes'],
                 'allergies' => ['penicillin'],
                 'blood_group' => 'O+',
+                'role' => 'patient',
+            ]);
+        }
+
+        // Create a doctor user linked to an existing doctor
+        $doctor = \App\Models\Doctor::first();
+        if ($doctor && !User::where('email', 'doctor@example.com')->exists()) {
+            User::create([
+                'name' => 'Jane Doe',
+                'email' => 'doctor@example.com',
+                'phone' => '+255700000000',
+                'password' => Hash::make('securePassword123'),
+                'date_of_birth' => '1988-03-10',
+                'gender' => 'female',
+                'address' => 'Masaki, Dar es Salaam',
+                'emergency_contact' => 'John Doe',
+                'emergency_contact_phone' => '+255700000010',
+                'medical_history' => [],
+                'allergies' => [],
+                'blood_group' => 'A+',
+                'role' => 'doctor',
+                'doctor_id' => $doctor->id,
             ]);
         }
     }

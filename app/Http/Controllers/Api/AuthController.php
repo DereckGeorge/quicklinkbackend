@@ -139,13 +139,20 @@ class AuthController extends Controller
      *         @OA\JsonContent(
      *             @OA\Property(property="success", type="boolean", example=true),
      *             @OA\Property(property="message", type="string", example="Login successful"),
+     *             @OA\Property(property="token", type="string", example="jwt_token_here"),
      *             @OA\Property(property="data", type="object",
-     *                 @OA\Property(property="id", type="string", example="user_123"),
-     *                 @OA\Property(property="name", type="string", example="John Doe"),
-     *                 @OA\Property(property="email", type="string", example="john@example.com"),
-     *                 @OA\Property(property="phone", type="string", example="+255700000000")
-     *             ),
-     *             @OA\Property(property="token", type="string", example="jwt_token_here")
+     *                 @OA\Property(property="role", type="string", example="doctor"),
+     *                 @OA\Property(property="id", type="string", example="doc_123"),
+     *                 @OA\Property(property="name", type="string", example="Dr. Jane Doe"),
+     *                 @OA\Property(property="email", type="string", example="doctor@example.com"),
+     *                 @OA\Property(property="phone", type="string", example="+255700000000"),
+     *                 @OA\Property(property="licenseNumber", type="string", example="TMC-123456"),
+     *                 @OA\Property(property="specialty", type="string", example="Cardiology"),
+     *                 @OA\Property(property="yearsOfExperience", type="integer", example=8),
+     *                 @OA\Property(property="clinicName", type="string", example="Sunrise Clinic"),
+     *                 @OA\Property(property="clinicAddress", type="string", example="123 Main St, Dar es Salaam"),
+     *                 @OA\Property(property="bio", type="string", example="Cardiologist with a focus on preventive care")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -178,18 +185,37 @@ class AuthController extends Controller
             ], 401);
         }
 
-        $user = auth()->user();
+        $user = auth()->user()->load('doctor');
+
+        $data = [
+            'role' => $user->role ?? 'patient',
+            'id' => (string)$user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+        ];
+
+        if (($user->role ?? 'patient') === 'doctor' && $user->doctor) {
+            $data = [
+                'role' => 'doctor',
+                'id' => 'doc_' . $user->doctor->id,
+                'name' => 'Dr. ' . $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'licenseNumber' => $user->doctor->license_number,
+                'specialty' => $user->doctor->specialty,
+                'yearsOfExperience' => (int)$user->doctor->experience,
+                'clinicName' => $user->doctor->clinic_name,
+                'clinicAddress' => $user->doctor->clinic_address,
+                'bio' => $user->doctor->bio,
+            ];
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Login successful',
-            'data' => [
-                'id' => $user->id,
-                'name' => $user->name,
-                'email' => $user->email,
-                'phone' => $user->phone,
-            ],
-            'token' => $token
+            'token' => $token,
+            'data' => $data,
         ]);
     }
 
