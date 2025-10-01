@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\Doctor;
+use App\Models\Hospital;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -22,7 +24,7 @@ class AuthController extends Controller
      *     path="/api/auth/register",
      *     tags={"Authentication"},
      *     summary="User registration",
-     *     description="Register a new user account",
+     *     description="Register a new user account. Supports patient (default) and doctor role.",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -38,7 +40,15 @@ class AuthController extends Controller
      *             @OA\Property(property="emergencyContactPhone", type="string", example="+255700000001"),
      *             @OA\Property(property="medicalHistory", type="array", @OA\Items(type="string"), example={"diabetes","hypertension"}),
      *             @OA\Property(property="allergies", type="array", @OA\Items(type="string"), example={"penicillin"}),
-     *             @OA\Property(property="bloodGroup", type="string", example="O+")
+     *             @OA\Property(property="bloodGroup", type="string", example="O+"),
+     *             @OA\Property(property="role", type="string", enum={"patient","doctor"}, example="patient"),
+     *             @OA\Property(property="hospitalId", type="string", nullable=true, example="1"),
+     *             @OA\Property(property="licenseNumber", type="string", nullable=true, example="TMC-123456"),
+     *             @OA\Property(property="specialty", type="string", nullable=true, example="Cardiology"),
+     *             @OA\Property(property="yearsOfExperience", type="integer", nullable=true, example=8),
+     *             @OA\Property(property="clinicName", type="string", nullable=true, example="Sunrise Clinic"),
+     *             @OA\Property(property="clinicAddress", type="string", nullable=true, example="123 Main St, Dar es Salaam"),
+     *             @OA\Property(property="bio", type="string", nullable=true, example="Cardiologist with a focus on preventive care")
      *         )
      *     ),
      *     @OA\Response(
@@ -52,6 +62,7 @@ class AuthController extends Controller
      *                 @OA\Property(property="name", type="string", example="John Doe"),
      *                 @OA\Property(property="email", type="string", example="john@example.com"),
      *                 @OA\Property(property="phone", type="string", example="+255700000000"),
+     *                 @OA\Property(property="role", type="string", example="patient"),
      *                 @OA\Property(property="createdAt", type="string", format="date-time", example="2024-01-15T10:30:00Z")
      *             ),
      *             @OA\Property(property="token", type="string", example="jwt_token_here")
@@ -78,6 +89,15 @@ class AuthController extends Controller
             'medicalHistory' => 'nullable|array',
             'allergies' => 'nullable|array',
             'bloodGroup' => 'required|string|max:10',
+            'role' => 'nullable|in:patient,doctor',
+            // doctor-specific fields
+            'hospitalId' => 'nullable|exists:hospitals,id',
+            'licenseNumber' => 'nullable|string',
+            'specialty' => 'nullable|string',
+            'yearsOfExperience' => 'nullable|integer|min:0',
+            'clinicName' => 'nullable|string',
+            'clinicAddress' => 'nullable|string',
+            'bio' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -101,7 +121,40 @@ class AuthController extends Controller
             'medical_history' => $request->medicalHistory,
             'allergies' => $request->allergies,
             'blood_group' => $request->bloodGroup,
+            'role' => $request->role ?? 'patient',
         ]);
+
+        // If registering as doctor, create doctor profile and link
+        if (($request->role ?? 'patient') === 'doctor') {
+            $hospital = null;
+            if ($request->filled('hospitalId')) {
+                $hospital = Hospital::find($request->hospitalId);
+            }
+            if (!$hospital) {
+                $hospital = Hospital::first();
+            }
+
+            $doctor = Doctor::create([
+                'hospital_id' => optional($hospital)->id,
+                'name' => 'Dr. ' . $user->name,
+                'specialty' => $request->specialty,
+                'qualification' => null,
+                'license_number' => $request->licenseNumber,
+                'experience' => $request->yearsOfExperience ?? 0,
+                'rating' => 0,
+                'image_url' => null,
+                'available_days' => [],
+                'available_time' => null,
+                'consultation_fee' => 0,
+                'bio' => $request->bio,
+                'languages' => [],
+                'clinic_name' => $request->clinicName,
+                'clinic_address' => $request->clinicAddress,
+            ]);
+
+            $user->doctor_id = $doctor->id;
+            $user->save();
+        }
 
         $token = JWTAuth::fromUser($user);
 
@@ -113,6 +166,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
+                'role' => $user->role,
                 'createdAt' => $user->created_at->toISOString(),
             ],
             'token' => $token

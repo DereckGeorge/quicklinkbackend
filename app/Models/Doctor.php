@@ -14,6 +14,7 @@ class Doctor extends Model
         'name',
         'specialty',
         'qualification',
+        'license_number',
         'experience',
         'rating',
         'image_url',
@@ -22,6 +23,8 @@ class Doctor extends Model
         'consultation_fee',
         'bio',
         'languages',
+        'clinic_name',
+        'clinic_address',
     ];
 
     protected function casts(): array
