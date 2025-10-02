@@ -350,7 +350,7 @@
                     "Authentication"
                 ],
                 "summary": "User registration",
-                "description": "Register a new user account",
+                "description": "Register a new user account. Supports patient (default) and doctor role.",
                 "operationId": "c7bb21a0d87049e161b8e4c9b0d909f2",
                 "requestBody": {
                     "required": true,
@@ -436,6 +436,49 @@
                                     "bloodGroup": {
                                         "type": "string",
                                         "example": "O+"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "patient",
+                                            "doctor"
+                                        ],
+                                        "example": "patient"
+                                    },
+                                    "hospitalId": {
+                                        "type": "string",
+                                        "example": "1",
+                                        "nullable": true
+                                    },
+                                    "licenseNumber": {
+                                        "type": "string",
+                                        "example": "TMC-123456",
+                                        "nullable": true
+                                    },
+                                    "specialty": {
+                                        "type": "string",
+                                        "example": "Cardiology",
+                                        "nullable": true
+                                    },
+                                    "yearsOfExperience": {
+                                        "type": "integer",
+                                        "example": 8,
+                                        "nullable": true
+                                    },
+                                    "clinicName": {
+                                        "type": "string",
+                                        "example": "Sunrise Clinic",
+                                        "nullable": true
+                                    },
+                                    "clinicAddress": {
+                                        "type": "string",
+                                        "example": "123 Main St, Dar es Salaam",
+                                        "nullable": true
+                                    },
+                                    "bio": {
+                                        "type": "string",
+                                        "example": "Cardiologist with a focus on preventive care",
+                                        "nullable": true
                                     }
                                 },
                                 "type": "object"
@@ -475,6 +518,10 @@
                                                 "phone": {
                                                     "type": "string",
                                                     "example": "+255700000000"
+                                                },
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "patient"
                                                 },
                                                 "createdAt": {
                                                     "type": "string",
@@ -549,30 +596,58 @@
                                             "type": "string",
                                             "example": "Login successful"
                                         },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "jwt_token_here"
+                                        },
                                         "data": {
                                             "properties": {
+                                                "role": {
+                                                    "type": "string",
+                                                    "example": "doctor"
+                                                },
                                                 "id": {
                                                     "type": "string",
-                                                    "example": "user_123"
+                                                    "example": "doc_123"
                                                 },
                                                 "name": {
                                                     "type": "string",
-                                                    "example": "John Doe"
+                                                    "example": "Dr. Jane Doe"
                                                 },
                                                 "email": {
                                                     "type": "string",
-                                                    "example": "john@example.com"
+                                                    "example": "doctor@example.com"
                                                 },
                                                 "phone": {
                                                     "type": "string",
                                                     "example": "+255700000000"
+                                                },
+                                                "licenseNumber": {
+                                                    "type": "string",
+                                                    "example": "TMC-123456"
+                                                },
+                                                "specialty": {
+                                                    "type": "string",
+                                                    "example": "Cardiology"
+                                                },
+                                                "yearsOfExperience": {
+                                                    "type": "integer",
+                                                    "example": 8
+                                                },
+                                                "clinicName": {
+                                                    "type": "string",
+                                                    "example": "Sunrise Clinic"
+                                                },
+                                                "clinicAddress": {
+                                                    "type": "string",
+                                                    "example": "123 Main St, Dar es Salaam"
+                                                },
+                                                "bio": {
+                                                    "type": "string",
+                                                    "example": "Cardiologist with a focus on preventive care"
                                                 }
                                             },
                                             "type": "object"
-                                        },
-                                        "token": {
-                                            "type": "string",
-                                            "example": "jwt_token_here"
                                         }
                                     },
                                     "type": "object"
@@ -822,24 +897,6 @@
                 }
             }
         },
-        "/api/emergency/request": {
-            "post": {
-                "tags": [
-                    "Emergency"
-                ],
-                "summary": "Request emergency services",
-                "description": "Create an emergency request",
-                "operationId": "0c2530a1543379ec230e0ac1d51f7056",
-                "requestBody": {
-                    "required": true
-                },
-                "responses": {
-                    "201": {
-                        "description": "Emergency requested"
-                    }
-                }
-            }
-        },
         "/api/home-visits": {
             "get": {
                 "tags": [
@@ -916,7 +973,76 @@
                 "description": "Create a booking for a home visit provider",
                 "operationId": "e72e53d26e4b610617a981d5d8ed86bc",
                 "requestBody": {
-                    "required": true
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "homeVisitId",
+                                    "patientName",
+                                    "patientPhone",
+                                    "patientAddress",
+                                    "patientLatitude",
+                                    "patientLongitude",
+                                    "scheduledDate",
+                                    "timeSlot",
+                                    "visitReason"
+                                ],
+                                "properties": {
+                                    "homeVisitId": {
+                                        "type": "string",
+                                        "example": "hv1"
+                                    },
+                                    "patientId": {
+                                        "type": "string",
+                                        "example": "user_123",
+                                        "nullable": true
+                                    },
+                                    "patientName": {
+                                        "type": "string",
+                                        "example": "John Doe"
+                                    },
+                                    "patientPhone": {
+                                        "type": "string",
+                                        "example": "+255700000000"
+                                    },
+                                    "patientAddress": {
+                                        "type": "string",
+                                        "example": "Mikocheni, Dar es Salaam"
+                                    },
+                                    "patientLatitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": -6.8235
+                                    },
+                                    "patientLongitude": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 39.2695
+                                    },
+                                    "scheduledDate": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-09-25"
+                                    },
+                                    "timeSlot": {
+                                        "type": "string",
+                                        "example": "10:00"
+                                    },
+                                    "visitReason": {
+                                        "type": "string",
+                                        "example": "Regular checkup"
+                                    },
+                                    "symptoms": {
+                                        "type": "string",
+                                        "example": "None",
+                                        "nullable": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
                 },
                 "responses": {
                     "201": {
@@ -1287,10 +1413,6 @@
         {
             "name": "Doctors",
             "description": "Doctor availability and management endpoints"
-        },
-        {
-            "name": "Emergency",
-            "description": "Emergency services endpoints"
         },
         {
             "name": "HomeVisits",
