@@ -24,7 +24,7 @@ class AuthController extends Controller
      *     path="/api/auth/register",
      *     tags={"Authentication"},
      *     summary="User registration",
-     *     description="Register a new user account. Supports patient (default) and doctor role.",
+     *     description="Register a new user account. Supports patient (default) and doctor role. If role=doctor, doctor fields must be provided.",
      *     @OA\RequestBody(
      *         required=true,
      *         @OA\JsonContent(
@@ -41,11 +41,11 @@ class AuthController extends Controller
      *             @OA\Property(property="medicalHistory", type="array", @OA\Items(type="string"), example={"diabetes","hypertension"}),
      *             @OA\Property(property="allergies", type="array", @OA\Items(type="string"), example={"penicillin"}),
      *             @OA\Property(property="bloodGroup", type="string", example="O+"),
-     *             @OA\Property(property="role", type="string", enum={"patient","doctor"}, example="patient"),
-     *             @OA\Property(property="hospitalId", type="string", nullable=true, example="1"),
-     *             @OA\Property(property="licenseNumber", type="string", nullable=true, example="TMC-123456"),
-     *             @OA\Property(property="specialty", type="string", nullable=true, example="Cardiology"),
-     *             @OA\Property(property="yearsOfExperience", type="integer", nullable=true, example=8),
+     *             @OA\Property(property="role", type="string", enum={"patient","doctor"}, example="patient", description="Defaults to patient if omitted"),
+     *             @OA\Property(property="hospitalId", type="string", nullable=true, example="1", description="Required if role=doctor (or first hospital will be used)"),
+     *             @OA\Property(property="licenseNumber", type="string", nullable=true, example="TMC-123456", description="Required if role=doctor"),
+     *             @OA\Property(property="specialty", type="string", nullable=true, example="Cardiology", description="Required if role=doctor"),
+     *             @OA\Property(property="yearsOfExperience", type="integer", nullable=true, example=8, description="Required if role=doctor"),
      *             @OA\Property(property="clinicName", type="string", nullable=true, example="Sunrise Clinic"),
      *             @OA\Property(property="clinicAddress", type="string", nullable=true, example="123 Main St, Dar es Salaam"),
      *             @OA\Property(property="bio", type="string", nullable=true, example="Cardiologist with a focus on preventive care")
@@ -90,11 +90,11 @@ class AuthController extends Controller
             'allergies' => 'nullable|array',
             'bloodGroup' => 'required|string|max:10',
             'role' => 'nullable|in:patient,doctor',
-            // doctor-specific fields
-            'hospitalId' => 'nullable|exists:hospitals,id',
-            'licenseNumber' => 'nullable|string',
-            'specialty' => 'nullable|string',
-            'yearsOfExperience' => 'nullable|integer|min:0',
+            // doctor-specific fields (conditionally required)
+            'hospitalId' => 'required_if:role,doctor|nullable|exists:hospitals,id',
+            'licenseNumber' => 'required_if:role,doctor|nullable|string',
+            'specialty' => 'required_if:role,doctor|nullable|string',
+            'yearsOfExperience' => 'required_if:role,doctor|nullable|integer|min:0',
             'clinicName' => 'nullable|string',
             'clinicAddress' => 'nullable|string',
             'bio' => 'nullable|string',
