@@ -9,6 +9,7 @@ use App\Models\Hospital;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
@@ -27,28 +28,32 @@ class AuthController extends Controller
      *     description="Register a new user account. Supports patient (default) and doctor role. If role=doctor, doctor fields must be provided.",
      *     @OA\RequestBody(
      *         required=true,
-     *         @OA\JsonContent(
-     *             required={"name","email","phone","password","dateOfBirth","gender","address","emergencyContact","emergencyContactPhone","bloodGroup"},
-     *             @OA\Property(property="name", type="string", example="John Doe"),
-     *             @OA\Property(property="email", type="string", format="email", example="john@example.com"),
-     *             @OA\Property(property="phone", type="string", example="+255700000000"),
-     *             @OA\Property(property="password", type="string", format="password", example="securePassword123"),
-     *             @OA\Property(property="dateOfBirth", type="string", format="date", example="1990-05-15"),
-     *             @OA\Property(property="gender", type="string", enum={"male","female","other"}, example="male"),
-     *             @OA\Property(property="address", type="string", example="Mikocheni, Dar es Salaam"),
-     *             @OA\Property(property="emergencyContact", type="string", example="Jane Doe"),
-     *             @OA\Property(property="emergencyContactPhone", type="string", example="+255700000001"),
-     *             @OA\Property(property="medicalHistory", type="array", @OA\Items(type="string"), example={"diabetes","hypertension"}),
-     *             @OA\Property(property="allergies", type="array", @OA\Items(type="string"), example={"penicillin"}),
-     *             @OA\Property(property="bloodGroup", type="string", example="O+"),
-     *             @OA\Property(property="role", type="string", enum={"patient","doctor"}, example="patient", description="Defaults to patient if omitted"),
-     *             @OA\Property(property="hospitalId", type="string", nullable=true, example="1", description="Required if role=doctor (or first hospital will be used)"),
-     *             @OA\Property(property="licenseNumber", type="string", nullable=true, example="TMC-123456", description="Required if role=doctor"),
-     *             @OA\Property(property="specialty", type="string", nullable=true, example="Cardiology", description="Required if role=doctor"),
-     *             @OA\Property(property="yearsOfExperience", type="integer", nullable=true, example=8, description="Required if role=doctor"),
-     *             @OA\Property(property="clinicName", type="string", nullable=true, example="Sunrise Clinic"),
-     *             @OA\Property(property="clinicAddress", type="string", nullable=true, example="123 Main St, Dar es Salaam"),
-     *             @OA\Property(property="bio", type="string", nullable=true, example="Cardiologist with a focus on preventive care")
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"name","email","phone","password","dateOfBirth","gender","address","emergencyContact","emergencyContactPhone","bloodGroup"},
+     *                 @OA\Property(property="name", type="string", example="John Doe"),
+     *                 @OA\Property(property="email", type="string", format="email", example="john@example.com"),
+     *                 @OA\Property(property="phone", type="string", example="+255700000000"),
+     *                 @OA\Property(property="password", type="string", format="password", example="securePassword123"),
+     *                 @OA\Property(property="dateOfBirth", type="string", format="date", example="1990-05-15"),
+     *                 @OA\Property(property="gender", type="string", enum={"male","female","other"}, example="male"),
+     *                 @OA\Property(property="address", type="string", example="Mikocheni, Dar es Salaam"),
+     *                 @OA\Property(property="emergencyContact", type="string", example="Jane Doe"),
+     *                 @OA\Property(property="emergencyContactPhone", type="string", example="+255700000001"),
+     *                 @OA\Property(property="medicalHistory", type="array", @OA\Items(type="string"), example={"diabetes","hypertension"}),
+     *                 @OA\Property(property="allergies", type="array", @OA\Items(type="string"), example={"penicillin"}),
+     *                 @OA\Property(property="bloodGroup", type="string", example="O+"),
+     *                 @OA\Property(property="profileImage", type="string", format="binary", description="Profile image file (optional)"),
+     *                 @OA\Property(property="role", type="string", enum={"patient","doctor"}, example="patient", description="Defaults to patient if omitted"),
+     *                 @OA\Property(property="hospitalId", type="string", nullable=true, example="1", description="Required if role=doctor (or first hospital will be used)"),
+     *                 @OA\Property(property="licenseNumber", type="string", nullable=true, example="TMC-123456", description="Required if role=doctor"),
+     *                 @OA\Property(property="specialty", type="string", nullable=true, example="Cardiology", description="Required if role=doctor"),
+     *                 @OA\Property(property="yearsOfExperience", type="integer", nullable=true, example=8, description="Required if role=doctor"),
+     *                 @OA\Property(property="clinicName", type="string", nullable=true, example="Sunrise Clinic"),
+     *                 @OA\Property(property="clinicAddress", type="string", nullable=true, example="123 Main St, Dar es Salaam"),
+     *                 @OA\Property(property="bio", type="string", nullable=true, example="Cardiologist with a focus on preventive care")
+     *             )
      *         )
      *     ),
      *     @OA\Response(
@@ -63,6 +68,7 @@ class AuthController extends Controller
      *                 @OA\Property(property="email", type="string", example="john@example.com"),
      *                 @OA\Property(property="phone", type="string", example="+255700000000"),
      *                 @OA\Property(property="role", type="string", example="patient"),
+     *                 @OA\Property(property="profileImageUrl", type="string", example="http://127.0.0.1:8000/storage/profile_images/user_123.jpg"),
      *                 @OA\Property(property="createdAt", type="string", format="date-time", example="2024-01-15T10:30:00Z")
      *             ),
      *             @OA\Property(property="token", type="string", example="jwt_token_here")
@@ -89,6 +95,7 @@ class AuthController extends Controller
             'medicalHistory' => 'nullable|array',
             'allergies' => 'nullable|array',
             'bloodGroup' => 'required|string|max:10',
+            'profileImage' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'role' => 'nullable|in:patient,doctor',
             // doctor-specific fields (conditionally required)
             'hospitalId' => 'required_if:role,doctor|nullable|exists:hospitals,id',
@@ -108,6 +115,15 @@ class AuthController extends Controller
             ], 422);
         }
 
+        // Handle profile image upload
+        $profileImageUrl = null;
+        if ($request->hasFile('profileImage')) {
+            $file = $request->file('profileImage');
+            $filename = 'profile_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('public/profile_images', $filename);
+            $profileImageUrl = Storage::url($path);
+        }
+
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
@@ -121,6 +137,7 @@ class AuthController extends Controller
             'medical_history' => $request->medicalHistory,
             'allergies' => $request->allergies,
             'blood_group' => $request->bloodGroup,
+            'profile_image_url' => $profileImageUrl,
             'role' => $request->role ?? 'patient',
         ]);
 
@@ -167,6 +184,7 @@ class AuthController extends Controller
                 'email' => $user->email,
                 'phone' => $user->phone,
                 'role' => $user->role,
+                'profileImageUrl' => $user->profile_image_url,
                 'createdAt' => $user->created_at->toISOString(),
             ],
             'token' => $token
