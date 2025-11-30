@@ -9,7 +9,7 @@ use App\Models\Hospital;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
 /**
@@ -119,9 +119,15 @@ class AuthController extends Controller
         $profileImageUrl = null;
         if ($request->hasFile('profileImage')) {
             $file = $request->file('profileImage');
-            $filename = 'profile_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/profile_images', $filename);
-            $profileImageUrl = Storage::url($path);
+            $directory = public_path('profile_images');
+            if (!File::exists($directory)) {
+                File::makeDirectory($directory, 0755, true);
+            }
+
+            $baseName = str_replace(' ', '_', strtolower($request->name ?? 'user'));
+            $filename = $baseName . '_profile_' . time() . '.' . $file->getClientOriginalExtension();
+            $file->move($directory, $filename);
+            $profileImageUrl = 'profile_images/' . $filename;
         }
 
         $user = User::create([

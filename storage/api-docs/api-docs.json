@@ -350,12 +350,12 @@
                     "Authentication"
                 ],
                 "summary": "User registration",
-                "description": "Register a new user account. Supports patient (default) and doctor role.",
+                "description": "Register a new user account. Supports patient (default) and doctor role. If role=doctor, doctor fields must be provided.",
                 "operationId": "c7bb21a0d87049e161b8e4c9b0d909f2",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "application/json": {
+                        "multipart/form-data": {
                             "schema": {
                                 "required": [
                                     "name",
@@ -437,7 +437,13 @@
                                         "type": "string",
                                         "example": "O+"
                                     },
+                                    "profileImage": {
+                                        "description": "Profile image file (optional)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
                                     "role": {
+                                        "description": "Defaults to patient if omitted",
                                         "type": "string",
                                         "enum": [
                                             "patient",
@@ -446,21 +452,25 @@
                                         "example": "patient"
                                     },
                                     "hospitalId": {
+                                        "description": "Required if role=doctor (or first hospital will be used)",
                                         "type": "string",
                                         "example": "1",
                                         "nullable": true
                                     },
                                     "licenseNumber": {
+                                        "description": "Required if role=doctor",
                                         "type": "string",
                                         "example": "TMC-123456",
                                         "nullable": true
                                     },
                                     "specialty": {
+                                        "description": "Required if role=doctor",
                                         "type": "string",
                                         "example": "Cardiology",
                                         "nullable": true
                                     },
                                     "yearsOfExperience": {
+                                        "description": "Required if role=doctor",
                                         "type": "integer",
                                         "example": 8,
                                         "nullable": true
@@ -522,6 +532,10 @@
                                                 "role": {
                                                     "type": "string",
                                                     "example": "patient"
+                                                },
+                                                "profileImageUrl": {
+                                                    "type": "string",
+                                                    "example": "http://127.0.0.1:8000/storage/profile_images/user_123.jpg"
                                                 },
                                                 "createdAt": {
                                                     "type": "string",
@@ -1390,6 +1404,454 @@
                     }
                 }
             }
+        },
+        "/api/v1/hospitals": {
+            "get": {
+                "tags": [
+                    "Hospital Registration"
+                ],
+                "summary": "List hospitals",
+                "description": "List all hospitals with filtering, sorting, and pagination",
+                "operationId": "5e27303154b5378d60b70d08861ed03c",
+                "parameters": [
+                    {
+                        "name": "region",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "district",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "verification_status",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 1
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "default": 20
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hospitals retrieved successfully"
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Hospital Registration"
+                ],
+                "summary": "Create hospital registration",
+                "description": "Register a new hospital with complete information including legal compliance, infrastructure, and personnel details",
+                "operationId": "d4c7d31f93c32b003c52991d422f7560",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "hospital_name",
+                                    "is_polyclinic",
+                                    "physical_address",
+                                    "contact_details",
+                                    "ownership_type",
+                                    "date_operation_began",
+                                    "credentialing_contact",
+                                    "registration_legal_compliance",
+                                    "clinical_services_infrastructure",
+                                    "key_personnel_staffing"
+                                ],
+                                "properties": {
+                                    "hospital_name": {
+                                        "type": "string",
+                                        "example": "Test Hospital"
+                                    },
+                                    "is_polyclinic": {
+                                        "type": "boolean",
+                                        "example": false
+                                    },
+                                    "physical_address": {
+                                        "properties": {
+                                            "street": {
+                                                "type": "string",
+                                                "example": "123 Main Street"
+                                            },
+                                            "area": {
+                                                "type": "string",
+                                                "example": "City Center"
+                                            },
+                                            "ward": {
+                                                "type": "string",
+                                                "example": "Ward 1"
+                                            },
+                                            "district": {
+                                                "type": "string",
+                                                "example": "Dar es Salaam"
+                                            },
+                                            "region": {
+                                                "type": "string",
+                                                "example": "Dar es Salaam"
+                                            },
+                                            "gps_coordinates": {
+                                                "properties": {
+                                                    "latitude": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": -6.7924
+                                                    },
+                                                    "longitude": {
+                                                        "type": "number",
+                                                        "format": "float",
+                                                        "example": 39.2083
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "contact_details": {
+                                        "properties": {
+                                            "main_phone": {
+                                                "type": "string",
+                                                "example": "+255700000000"
+                                            },
+                                            "official_email": {
+                                                "type": "string",
+                                                "format": "email",
+                                                "example": "test@hospital.com"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "ownership_type": {
+                                        "type": "string",
+                                        "enum": [
+                                            "government_public",
+                                            "fbo",
+                                            "ngo",
+                                            "private_for_profit"
+                                        ],
+                                        "example": "private_for_profit"
+                                    },
+                                    "registration_legal_compliance": {
+                                        "properties": {
+                                            "hfrs_number": {
+                                                "type": "string",
+                                                "example": "HFRS-001"
+                                            },
+                                            "operating_license": {
+                                                "properties": {
+                                                    "license_number": {
+                                                        "type": "string",
+                                                        "example": "LIC-001"
+                                                    },
+                                                    "expiration_date": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2026-12-31"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "business_registration": {
+                                                "properties": {
+                                                    "tin_certificate_number": {
+                                                        "type": "string",
+                                                        "example": "TIN-001"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "nhif_status": {
+                                                "properties": {
+                                                    "accepts_nhif": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "nhif_accreditation_number": {
+                                                        "type": "string",
+                                                        "example": "NHIF-001"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "clinical_services_infrastructure": {
+                                        "properties": {
+                                            "level_of_facility": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "national_hospital",
+                                                    "regional_referral_hospital",
+                                                    "district_hospital",
+                                                    "health_centre",
+                                                    "dispensary",
+                                                    "other"
+                                                ],
+                                                "example": "district_hospital"
+                                            },
+                                            "services_offered": {
+                                                "properties": {
+                                                    "inpatient_services": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "outpatient_services": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "emergency_casualty_services": {
+                                                        "type": "boolean",
+                                                        "example": true
+                                                    },
+                                                    "major_specialties": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        },
+                                                        "example": [
+                                                            "Surgery",
+                                                            "General Medicine"
+                                                        ]
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "capacity": {
+                                                "properties": {
+                                                    "total_bed_capacity": {
+                                                        "type": "integer",
+                                                        "example": 50
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "key_personnel_staffing": {
+                                        "properties": {
+                                            "head_of_facility": {
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Dr. Jane Smith"
+                                                    },
+                                                    "mct_registration_number": {
+                                                        "type": "string",
+                                                        "example": "MCT-001"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "nursing_officer_in_charge": {
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Nurse Mary"
+                                                    },
+                                                    "tnmc_registration_number": {
+                                                        "type": "string",
+                                                        "example": "TNMC-001"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "pharmacist_in_charge": {
+                                                "properties": {
+                                                    "name": {
+                                                        "type": "string",
+                                                        "example": "Pharm John"
+                                                    },
+                                                    "pharmacy_council_registration_number": {
+                                                        "type": "string",
+                                                        "example": "PHARM-001"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            },
+                                            "total_staff_numbers": {
+                                                "properties": {
+                                                    "doctors": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "nurses": {
+                                                        "type": "integer",
+                                                        "example": 20
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Hospital registered successfully",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "hospital_id": {
+                                            "type": "string",
+                                            "example": "4"
+                                        },
+                                        "hospital_name": {
+                                            "type": "string",
+                                            "example": "Test Hospital"
+                                        },
+                                        "hfrs_number": {
+                                            "type": "string",
+                                            "example": "HFRS-001"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "example": "pending_verification"
+                                        },
+                                        "verification_status": {
+                                            "type": "string",
+                                            "example": "pending"
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Hospital registration submitted successfully. Please upload required documents."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error"
+                    },
+                    "409": {
+                        "description": "Hospital with HFRS number already exists"
+                    }
+                }
+            }
+        },
+        "/api/v1/hospitals/{hospitalId}/documents": {
+            "post": {
+                "tags": [
+                    "Hospital Registration"
+                ],
+                "summary": "Upload hospital documents",
+                "description": "Upload required documents for hospital registration verification",
+                "operationId": "e0f7e671ce2ea97c7217e0037f18c4ab",
+                "parameters": [
+                    {
+                        "name": "hospitalId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "official_application_letter": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "operating_license": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "hfrs_registration_certificate": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "facility_photos": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string",
+                                            "format": "binary"
+                                        }
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Documents uploaded successfully"
+                    },
+                    "404": {
+                        "description": "Hospital not found"
+                    }
+                }
+            }
+        },
+        "/api/v1/hospitals/{hospitalId}": {
+            "get": {
+                "tags": [
+                    "Hospital Registration"
+                ],
+                "summary": "Get hospital details",
+                "description": "Retrieve complete hospital registration details",
+                "operationId": "a8ed4e0988fd6e86c20f3b19a85e71e4",
+                "parameters": [
+                    {
+                        "name": "hospitalId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Hospital details retrieved successfully"
+                    },
+                    "404": {
+                        "description": "Hospital not found"
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -1421,6 +1883,10 @@
         {
             "name": "Hospitals",
             "description": "Hospital and doctor management endpoints"
+        },
+        {
+            "name": "Hospital Registration",
+            "description": "Hospital registration and management endpoints"
         }
     ]
 }

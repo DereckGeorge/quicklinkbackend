@@ -374,3 +374,90 @@ Purpose: Request emergency services
     "createdAt": "2024-01-15T10:30:00Z"
   }
 }
+
+POST https://api.sandbox.pawapay.io/v2/deposits
+
+    {
+        "depositId": "afb57b93-7849-49aa-babb-4c3ccbfe3d79",
+        "amount": "100",
+        "currency": "RWF",
+        "payer": {
+            "type": "MMO",
+            "accountDetails": {
+                "phoneNumber": "250783456789",
+                "provider": "MTN_MOMO_RWA"
+            }
+        }
+    }
+// Response
+
+{
+        "depositId": "afb57b93-7849-49aa-babb-4c3ccbfe3d79",
+        "status": "ACCEPTED",
+        "nextStep": "FINAL_STATUS",
+        "created": "2025-05-15T07:38:56Z"
+    }
+// callback response
+
+{
+        "depositId": "afb57b93-7849-49aa-babb-4c3ccbfe3d79",
+        "status": "COMPLETED",
+        "amount": "100.00",
+        "currency": "RWF",
+        "country": "RWA",
+        "payer": {
+            "type": "MMO",
+            "accountDetails": {
+                "phoneNumber": "250783456789",
+                "provider": "MTN_MOMO_RWA"
+            }
+        },
+        "customerMessage": "DEMO",
+        "created": "2025-05-15T07:38:56Z",
+        "providerTransactionId": "df0e9405-fb17-42c2-a264-440c239f67ed"
+    }
+
+// Providers 
+GET https://api.sandbox.pawapay.io/v2/active-conf?country=RWA&operationType=DEPOSIT
+
+    {
+        "companyName": "Demo",
+        "countries": [
+            {
+                "country": "RWA",
+                "prefix": "250",
+                "flag": "https://static-content.pawapay.io/country_flags/rwa.svg",
+                "displayName": {
+                    "en": "Rwanda",
+                    "fr": "Rwanda"
+                },
+                "providers": [
+                    {
+                        "provider": "AIRTEL_RWA",
+                        "displayName": "Airtel",
+                        "logo": "https://static-content.pawapay.io/company_logos/airtel.png",
+                        "currencies": [
+                            {
+                                "currency": "RWF",
+                                "displayName": "R₣",
+                                "operationTypes": ...
+                            }
+                        ]
+                    },
+                    {
+                        "provider": "MTN_MOMO_RWA",
+                        "displayName": "MTN",
+                        "logo": "https://static-content.pawapay.io/company_logos/mtn.png",
+                        "currencies": [
+                            {
+                                "currency": "RWF",
+                                "displayName": "R₣",
+                                "operationTypes": ...
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+        ...
+    }

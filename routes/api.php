@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HospitalController;
+use App\Http\Controllers\Api\HospitalRegistrationController;
 use App\Http\Controllers\Api\DoctorController;
 use App\Http\Controllers\Api\AppointmentController;
 use App\Http\Controllers\Api\HomeVisitController;
@@ -53,3 +54,22 @@ Route::get('home-visits', [HomeVisitController::class, 'index']);
 
 // Emergency route
 Route::post('emergency/request', [EmergencyController::class, 'requestEmergency']);
+
+// Hospital Registration API (v1)
+Route::prefix('v1')->group(function () {
+    // Hospital registration routes
+    Route::post('hospitals', [HospitalRegistrationController::class, 'store']);
+    Route::get('hospitals', [HospitalRegistrationController::class, 'index']);
+    Route::get('hospitals/{hospitalId}', [HospitalRegistrationController::class, 'show']);
+    Route::patch('hospitals/{hospitalId}', [HospitalRegistrationController::class, 'update']);
+    
+    // Document management routes
+    Route::post('hospitals/{hospitalId}/documents', [HospitalRegistrationController::class, 'uploadDocuments']);
+    Route::get('hospitals/{hospitalId}/documents', [HospitalRegistrationController::class, 'listDocuments']);
+    Route::get('hospitals/{hospitalId}/documents/{documentType}', [HospitalRegistrationController::class, 'getDocument']);
+    Route::delete('hospitals/{hospitalId}/documents/{documentType}', [HospitalRegistrationController::class, 'deleteDocument']);
+    
+    // Admin routes (should be protected with admin middleware)
+    Route::post('hospitals/{hospitalId}/verify', [HospitalRegistrationController::class, 'verify']);
+    Route::get('hospitals/pending-verification', [HospitalRegistrationController::class, 'pendingVerification']);
+});
